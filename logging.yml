@@ -1,0 +1,62 @@
+version: 1
+formatters:
+  simple:
+    format: '%(asctime)s: %(name)s.prod.%(levelname)s {"filename": "%(filename)s", "line": "%(lineno)d", %(message)s'
+    datefmt: '%Y-%m-%dT%H:%M:%S'
+  pulsar:
+    format: '%(asctime)s: %(name)s.prod.%(levelname)s {"process": "%(process)s", "thread": "%(thread)s", "message": "%(message)s"}'
+    datefmt: '%Y-%m-%dT%H:%M:%S'
+  events:
+    format: '%(asctime)s: %(name)s.prod.%(levelname)s %(message)s'
+    datefmt: '%Y-%m-%dT%H:%M:%S'
+
+handlers:
+  console:
+    class: pulsar.utils.log.ColoredStream
+    level: DEBUG
+    formatter: simple
+    stream: ext://sys.stdout
+  console2:
+    class: pulsar.utils.log.ColoredStream
+    level: DEBUG
+    formatter: pulsar
+    stream: ext://sys.stdout
+  eventsconsole:
+    class: pulsar.utils.log.ColoredStream
+    level: DEBUG
+    formatter: events
+    stream: ext://sys.stdout
+  syslog:
+    class: logging.handlers.SysLogHandler
+    formatter: events
+    level: DEBUG
+    address: ['log001.prod.mono', 514]
+    facility: 'local3'
+loggers:
+  pulsar:
+    level: DEBUG
+    handlers: [console2]
+    propagate: no
+  api.v1.api:
+    level: DEBUG
+    handlers: [console]
+    propagate: no
+  api.events:
+    level: DEBUG
+    handlers: ['eventsconsole', 'syslog']
+    propagate: no
+  monometrics.events:
+    level: DEBUG
+    handlers: ['eventsconsole', 'syslog']
+    propagate: no
+  elasticsearch:
+    level: DEBUG
+    handlers: ['eventsconsole', 'syslog']
+    propagate: no
+  elasticsearch.trace:
+    level: DEBUG
+    handlers: ['eventsconsole', 'syslog']
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [console]
